@@ -1,7 +1,10 @@
+
+
 @font-face {
     font-family: "W95FA";
-    src: url("../fonts/W95FA.otf"); 
+    src: url("../fonts/W95FA.otf");
 }
+
 
 QMainWindow {
     background-color: #3A3A3A;
@@ -11,13 +14,13 @@ QMainWindow {
 }
 
 QLabel {
-                background-color: #222222;
-                color: #ffcc00;
-                font-family: "W95FA";
-                font-size: 24pt;
-                border: 2px solid #777;
-                padding: 8px;
-            }
+    background-color: #222222;
+    color: #ffcc00;
+    font-family: "W95FA";
+    font-size: 24px;
+    border: 2px solid #777;
+    padding: 8px;
+}
 
 QMenuBar {
     background-color: #222222;
@@ -51,6 +54,8 @@ QToolButton {
     background-color: #444444;
     border: 1px solid #666666;
     margin: 2px;
+    font-family: "W95FA";
+    font-size: 12px;
 }
 
 QToolButton:hover {

@@ -10,7 +10,8 @@ class AudioManager:
         self.player.setVolume(50)
 
     def add_track(self, path):
-        self.playlist.addMedia(QMediaContent(QUrl.fromLocalFile(path)))
+        media = QMediaContent(QUrl.fromLocalFile(path))
+        self.playlist.addMedia(media)
 
     def remove_track(self, index):
         self.playlist.removeMedia(index)

@@ -7,12 +7,14 @@ from PyQt5.QtCore import Qt, QTimer, QEvent
 from PyQt5.QtGui import QIcon
 from audio.playback import AudioManager
 from ui.settingsdialog import SettingsDialog
+from ui.miniplayer import WinampMiniPlayer
 
 class MainWindow(QMainWindow):
     def __init__(self, config_manager):
         super().__init__()
         self.setWindowTitle("QWENZ")
         self.setGeometry(100, 100, 800, 600)
+        self.mini_player = None
 
         self.config_manager = config_manager
         self.audio_manager = AudioManager()
@@ -20,12 +22,8 @@ class MainWindow(QMainWindow):
         self.audio_manager.set_volume(self.config_manager.get_volume())
         if self.config_manager.get_shuffle():
             self.audio_manager.shuffle_on()
-        else:
-            self.audio_manager.shuffle_off()
         if self.config_manager.get_repeat():
             self.audio_manager.repeat_on()
-        else:
-            self.audio_manager.repeat_off()
 
         self.create_menu()
         self.create_toolbar()
@@ -69,10 +67,15 @@ class MainWindow(QMainWindow):
         action_open = QAction("Megnyitás...", self)
         action_open.triggered.connect(self.add_songs)
         file_menu.addAction(action_open)
+
         file_menu.addSeparator()
         action_exit = QAction("Kilépés", self)
         action_exit.triggered.connect(self.close)
         file_menu.addAction(action_exit)
+
+        action_miniplayer = QAction("Mini lejátszó", self)
+        action_miniplayer.triggered.connect(self.show_miniplayer)
+        file_menu.addAction(action_miniplayer)
 
         settings_menu = menubar.addMenu("Beállítások")
         action_settings = QAction("Beállítások megnyitása", self)
@@ -83,7 +86,6 @@ class MainWindow(QMainWindow):
         self.toolbar = QToolBar("Playback Controls")
         self.toolbar.setAllowedAreas(Qt.AllToolBarAreas)
         self.addToolBar(Qt.TopToolBarArea, self.toolbar)
-        # Telepítünk egy event filtert a toolbar-ra
         self.toolbar.installEventFilter(self)
 
         icon_dir = "resources/icons/"
@@ -111,7 +113,6 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(action_next)
         self.toolbar.addAction(action_forward)
 
-        # Kezdetben horizontális csúszka
         self.volume_slider = QSlider(Qt.Horizontal)
         self.volume_slider.setRange(0, 100)
         self.volume_slider.setValue(self.audio_manager.get_volume())
@@ -141,10 +142,8 @@ class MainWindow(QMainWindow):
         self.audio_manager.set_volume(value)
 
     def add_songs(self):
-        files, _ = QFileDialog.getOpenFileNames(
-            self, "Zene hozzáadása", "",
-            "Audio files (*.mp3 *.wav *.flac *.ogg *.aac)"
-        )
+        files, _ = QFileDialog.getOpenFileNames(self, "Zene hozzáadása", "",
+                                                "Audio files (*.mp3 *.wav *.flac *.ogg *.aac)")
         if files:
             old_count = self.audio_manager.media_count()
             for f in files:
@@ -177,3 +176,9 @@ class MainWindow(QMainWindow):
     def open_settings(self):
         dlg = SettingsDialog(self.audio_manager, self.config_manager, self)
         dlg.exec_()
+
+    def show_miniplayer(self):
+        if not self.mini_player:
+            self.mini_player = WinampMiniPlayer(self.audio_manager)
+        self.mini_player.show()
+        self.mini_player.raise_()
