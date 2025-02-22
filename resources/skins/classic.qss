@@ -1,0 +1,113 @@
+@font-face {
+    font-family: "W95FA";
+    src: url("../fonts/W95FA.otf"); 
+}
+
+QMainWindow {
+    background-color: #3A3A3A;
+    color: #FFFFFF;
+    font-family: "W95FA";
+    font-size: 16px;
+}
+
+QLabel {
+                background-color: #222222;
+                color: #ffcc00;
+                font-family: "W95FA";
+                font-size: 24pt;
+                border: 2px solid #777;
+                padding: 8px;
+            }
+
+QMenuBar {
+    background-color: #222222;
+    color: #cccccc;
+    font-family: "W95FA";
+    font-size: 12px;
+}
+
+QMenuBar::item:selected {
+    background-color: #444444;
+}
+
+QMenu {
+    background-color: #222222;
+    color: #cccccc;
+    font-family: "W95FA";
+    font-size: 12px;
+}
+
+QMenu::item:selected {
+    background-color: #444444;
+}
+
+QToolBar {
+    background-color: #2C2C2C;
+    border: 1px solid #222222;
+    spacing: 8px;
+}
+
+QToolButton {
+    background-color: #444444;
+    border: 1px solid #666666;
+    margin: 2px;
+}
+
+QToolButton:hover {
+    background-color: #555555;
+}
+
+QPushButton {
+    background-color: #666666;
+    color: #ffffff;
+    border: 1px solid #999999;
+    padding: 6px;
+    font-family: "W95FA";
+    font-size: 12px;
+}
+
+QPushButton:hover {
+    background-color: #888888;
+}
+
+QListWidget {
+    background-color: #555555;
+    color: #ffffff;
+    border: 1px solid #999999;
+    font-family: "W95FA";
+    font-size: 12px;
+}
+
+QSlider::groove:horizontal {
+    background: #999999;
+    height: 4px;
+}
+
+QSlider::handle:horizontal {
+    background: #ffffff;
+    width: 12px;
+    margin: -5px 0;
+}
+
+QSlider::groove:vertical {
+    background: #999999;
+    width: 4px;
+}
+
+QSlider::handle:vertical {
+    background: #ffffff;
+    height: 12px;
+    margin: 0 -5px;
+}
+
+QCheckBox {
+    spacing: 8px;
+    font-family: "W95FA";
+    font-size: 12px;
+    color: #ffffff;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+}
