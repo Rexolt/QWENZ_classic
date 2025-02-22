@@ -1,4 +1,4 @@
-# ui/miniviz.py
+
 
 import random
 from PyQt5.QtWidgets import QWidget
