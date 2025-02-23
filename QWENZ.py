@@ -5,13 +5,23 @@ from PyQt5.QtGui import QFontDatabase, QFont
 from config.configmanager import ConfigManager
 from ui.mainwindow import MainWindow
 
+def resource_path(relative_path):
+    """Visszaadja a helyes elérési utat a megadott relatív úthoz.
+    Használható akkor is, ha a programot csomagolva futtatjuk."""
+    try:
+        base_path = sys._MEIPASS  # PyInstaller által létrehozott ideiglenes mappa
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 def main():
     app = QApplication(sys.argv)
-  
-    config_manager = ConfigManager("resources/user_config.json")
+    
+    config_file = resource_path(os.path.join("resources", "user_config.json"))
+    config_manager = ConfigManager(config_file)
     config_manager.load_config()
     
-    font_path = os.path.join("resources", "fonts", "W95FA.otf")
+    font_path = resource_path(os.path.join("resources", "fonts", "W95FA.otf"))
     font_id = QFontDatabase.addApplicationFont(font_path)
     if font_id < 0:
         print("Nem sikerült betölteni a fontot:", font_path)
@@ -20,7 +30,7 @@ def main():
         if families:
             app.setFont(QFont(families[0], 14))
     
-    qss_path = os.path.join("resources", "skins", "classic.qss")
+    qss_path = resource_path(os.path.join("resources", "skins", "classic.qss"))
     with open(qss_path, "r", encoding="utf-8") as f:
         qss = f.read()
     app.setStyleSheet(qss)

@@ -1,4 +1,5 @@
 import os
+import sys
 import pygame
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
@@ -8,7 +9,14 @@ from PyQt5.QtWidgets import (
 )
 from ui.realviz_pygame import RealVizPygame
 from audio.playback import AudioManagerPygame as AudioManager
-from mutagen.id3 import ID3
+
+# resource_path() függvény
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 def add_3d_effect(button):
     shadow = QGraphicsDropShadowEffect()
@@ -26,15 +34,16 @@ class WinampMiniPlayer(QWidget):
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setFixedSize(480, 260)
 
-        
-        self.background = QPixmap("resources/images/bgmin.png")
+        # Háttérkép beállítása
+        bg_path = resource_path(os.path.join("resources", "images", "bgmin.png"))
+        self.background = QPixmap(bg_path)
         if not self.background.isNull():
             self.background = self.background.scaled(self.size())
         else:
             self.background = QPixmap(self.size())
             self.background.fill(QColor("#2F3A3E"))
 
-        
+        # Stíluslap (ez marad)
         self.setStyleSheet("""
             WinampMiniPlayer {
                 background-color: qlineargradient(
@@ -91,7 +100,6 @@ class WinampMiniPlayer(QWidget):
             }
         """)
 
-        # Dobozárnyék az egész ablakra
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(15)
         shadow.setXOffset(0)
@@ -102,25 +110,21 @@ class WinampMiniPlayer(QWidget):
         self._drag_pos = None
         self.init_ui()
 
-        
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_info)
         self.timer.start(500)
 
     def init_ui(self):
-       
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
         main_layout.setSpacing(5)
 
-      
         top_layout = QHBoxLayout()
         main_layout.addLayout(top_layout)
 
-        
         self.album_art_label = QLabel()
         self.album_art_label.setFixedSize(90, 90)
-        default_art = QPixmap("resources/images/album_art.jpg")
+        default_art = QPixmap(resource_path(os.path.join("resources", "images", "album_art.jpg")))
         if default_art.isNull():
             default_art = QPixmap(90, 90)
             default_art.fill(QColor("#555555"))
@@ -133,7 +137,6 @@ class WinampMiniPlayer(QWidget):
         self.album_art_label.setPixmap(default_art)
         top_layout.addWidget(self.album_art_label)
 
-        
         mid_layout = QVBoxLayout()
         top_layout.addLayout(mid_layout)
 
@@ -144,11 +147,9 @@ class WinampMiniPlayer(QWidget):
         mid_layout.addWidget(self.label_title)
         mid_layout.addWidget(self.label_sub)
 
-        
         self.viz_widget = RealVizPygame(self.audio_manager)
         mid_layout.addWidget(self.viz_widget)
 
-        
         right_layout = QVBoxLayout()
         top_layout.addLayout(right_layout)
 
@@ -160,7 +161,6 @@ class WinampMiniPlayer(QWidget):
         self.label_time.setStyleSheet("color: #00FFC9;")
         right_layout.addWidget(self.label_time, alignment=Qt.AlignRight)
 
-        
         self.btn_close = QPushButton("X")
         self.btn_close.setFixedSize(24, 24)
         self.btn_close.clicked.connect(self.close)
@@ -182,11 +182,10 @@ class WinampMiniPlayer(QWidget):
         right_layout.addWidget(self.btn_close, alignment=Qt.AlignRight)
         right_layout.addStretch()
 
-        
         controls_layout = QHBoxLayout()
         main_layout.addLayout(controls_layout)
 
-        icon_dir = "resources/icons/"
+        icon_dir = resource_path(os.path.join("resources", "icons"))
         btn_prev = QPushButton()
         btn_prev.setIcon(QIcon(os.path.join(icon_dir, "prev.png")))
         btn_prev.clicked.connect(self.audio_manager.previous_track)
@@ -217,7 +216,6 @@ class WinampMiniPlayer(QWidget):
         add_3d_effect(btn_next)
         controls_layout.addWidget(btn_next)
 
-        
         volume_layout = QHBoxLayout()
         main_layout.addLayout(volume_layout)
 
@@ -232,7 +230,6 @@ class WinampMiniPlayer(QWidget):
         volume_layout.addWidget(self.slider_volume)
 
     def update_info(self):
-       
         self.update_metadata()
         pos_ms = pygame.mixer.music.get_pos()
         pos_sec = pos_ms // 1000 if pos_ms >= 0 else 0
@@ -241,14 +238,12 @@ class WinampMiniPlayer(QWidget):
         self.label_time.setText(time_str)
 
     def update_metadata(self):
-        
         current_file = self.audio_manager.get_current_track_file()
         if current_file and current_file != self.current_track_file:
             self.current_track_file = current_file
             title, artist, album_art = self.load_metadata(current_file)
             self.label_title.setText(title if title else os.path.basename(current_file))
             self.label_sub.setText(artist if artist else "Ismeretlen előadó")
-
             if album_art:
                 pixmap = QPixmap()
                 pixmap.loadFromData(album_art)
@@ -259,8 +254,7 @@ class WinampMiniPlayer(QWidget):
                 )
                 self.album_art_label.setPixmap(pixmap)
             else:
-                
-                default_art = QPixmap("resources/images/album_art.jpg")
+                default_art = QPixmap(resource_path(os.path.join("resources", "images", "album_art.jpg")))
                 if default_art.isNull():
                     default_art = QPixmap(self.album_art_label.size())
                     default_art.fill(QColor("#555555"))
@@ -273,7 +267,6 @@ class WinampMiniPlayer(QWidget):
                 self.album_art_label.setPixmap(default_art)
 
     def load_metadata(self, file_path):
-
         from mutagen.id3 import ID3
         try:
             audio = ID3(file_path)
@@ -282,7 +275,7 @@ class WinampMiniPlayer(QWidget):
             album_art = None
             apic_list = audio.getall("APIC")
             if apic_list:
-                album_art = apic_list[0].data  
+                album_art = apic_list[0].data
             title_text = title.text[0] if title and title.text else None
             artist_text = artist.text[0] if artist and artist.text else None
             return title_text, artist_text, album_art
@@ -291,7 +284,6 @@ class WinampMiniPlayer(QWidget):
             return None, None, None
 
     def paintEvent(self, event):
-       
         opt = QStyleOption()
         opt.initFrom(self)
         painter = QPainter(self)

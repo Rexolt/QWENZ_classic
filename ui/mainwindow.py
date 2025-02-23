@@ -1,4 +1,5 @@
 import os
+import sys
 import pygame
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
@@ -10,12 +11,20 @@ from audio.playback import AudioManagerPygame as AudioManager
 from ui.settingsdialog import SettingsDialog
 from ui.miniplayer import WinampMiniPlayer
 
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 class MainWindow(QMainWindow):
     def __init__(self, config_manager):
         super().__init__()
         self.setWindowTitle("QWENZ - mp3 player")
         self.setGeometry(100, 100, 800, 600)
-        self.setWindowIcon(QIcon("resources/icons/qwicon.png"))
+        self.setWindowIcon(QIcon(resource_path(os.path.join("resources", "icons", "qwicon.png"))))
+
 
         self.mini_player = None
         self.config_manager = config_manager
@@ -82,7 +91,7 @@ class MainWindow(QMainWindow):
         self.addToolBar(Qt.TopToolBarArea, self.toolbar)
         self.toolbar.installEventFilter(self)
 
-        icon_dir = "resources/icons/"
+        icon_dir = resource_path(os.path.join("resources", "icons"))
         action_backward = QAction(QIcon(os.path.join(icon_dir, "rew.png")), "Visszatekerés", self)
         action_prev = QAction(QIcon(os.path.join(icon_dir, "prev.png")), "Előző", self)
         action_play = QAction(QIcon(os.path.join(icon_dir, "play.png")), "Lejátszás", self)
