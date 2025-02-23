@@ -1,3 +1,3 @@
 # QWENZ_classic
 QWENZ is a classic style music player
-(logo.png)
+[https://github.com/Rexolt/QWENZ_classic/blob/main/logo.png]
