@@ -75,12 +75,12 @@ class RealVizPygame(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Ha szeretnéd használni a Qt alapértelmezett widget-háttérfestését is:
+        
         opt = QStyleOption()
         opt.initFrom(self)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 
-        # Példa: sötét háttér
+        
         bg_gradient = QLinearGradient(0, 0, 0, self.height())
         bg_gradient.setColorAt(0, QColor("#2A2A2A"))
         bg_gradient.setColorAt(1, QColor("#1E1E1E"))
@@ -98,7 +98,7 @@ class RealVizPygame(QWidget):
             bar_h = val * h
             y = h - bar_h
 
-            # Sáv gradiense
+           
             bar_gradient = QLinearGradient(x, y, x, y + bar_h)
             bar_gradient.setColorAt(0.0, QColor("#00FFC9"))  # felső
             bar_gradient.setColorAt(1.0, QColor("#00796B"))  # alsó
@@ -114,7 +114,7 @@ class RealVizPygame(QWidget):
                 3
             )
 
-            # Tükröződés
+           
             reflection_h = bar_h * 0.4
             reflection_y = y + bar_h
             reflection_gradient = QLinearGradient(x, reflection_y, x, reflection_y + reflection_h)
