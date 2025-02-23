@@ -2,7 +2,7 @@ import os
 import pygame
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
-    QPushButton, QFileDialog, QToolBar, QAction, QLabel, QSlider
+    QPushButton, QFileDialog, QToolBar, QAction, QLabel, QSlider, QStatusBar
 )
 from PyQt5.QtCore import Qt, QTimer, QEvent
 from PyQt5.QtGui import QIcon
@@ -13,13 +13,13 @@ from ui.miniplayer import WinampMiniPlayer
 class MainWindow(QMainWindow):
     def __init__(self, config_manager):
         super().__init__()
-        self.setWindowTitle("QWENZ")
+        self.setWindowTitle("QWENZ - mp3 player")
         self.setGeometry(100, 100, 800, 600)
+        self.setWindowIcon(QIcon("resources/icons/qwicon.png"))
+
         self.mini_player = None
-        
         self.config_manager = config_manager
         self.audio_manager = AudioManager()
-
         self.audio_manager.set_volume(self.config_manager.get_volume())
         if self.config_manager.get_shuffle():
             self.audio_manager.shuffle_on()
@@ -28,36 +28,10 @@ class MainWindow(QMainWindow):
 
         self.create_menu()
         self.create_toolbar()
+        self.init_ui()
+        self.setup_status_bar()
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-        main_layout = QVBoxLayout()
-        central_widget.setLayout(main_layout)
-
-        self.lbl_banner = QLabel("QWENZ")
-        self.lbl_banner.setAlignment(Qt.AlignCenter)
-        main_layout.addWidget(self.lbl_banner)
         
-        self.playlist_widget = QListWidget()
-        self.playlist_widget.currentRowChanged.connect(self.on_select_track)
-        main_layout.addWidget(self.playlist_widget, stretch=1)
-
-        bottom_layout = QHBoxLayout()
-        main_layout.addLayout(bottom_layout)
-
-        self.btn_add = QPushButton("Hozzáadás")
-        self.btn_remove = QPushButton("Törlés")
-        bottom_layout.addWidget(self.btn_add)
-        bottom_layout.addWidget(self.btn_remove)
-
-        self.btn_add.clicked.connect(self.add_songs)
-        self.btn_remove.clicked.connect(self.remove_song)
-
-        self.lbl_status = QLabel("Nincs lejátszás")
-        self.lbl_status.setStyleSheet("QLabel { border: 1px solid #777; background-color: #333; padding: 4px; }")
-        main_layout.addWidget(self.lbl_status)
-        self.audio_manager.set_volume(self.config_manager.get_volume())
-
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_status)
         self.timer.start(1000)
@@ -70,15 +44,33 @@ class MainWindow(QMainWindow):
         action_open.triggered.connect(self.add_songs)
         file_menu.addAction(action_open)
 
+
+        menubar = self.menuBar()
+    
+        #file_menu = menubar.addMenu("Fájl")
+    
+        action_open = QAction("Megnyitás (fájlok)...", self)
+        action_open.triggered.connect(self.add_songs)
+        file_menu.addAction(action_open)
+    
+        action_open_folder = QAction("Mappa megnyitása...", self)
+        action_open_folder.triggered.connect(self.add_folder)  
+        file_menu.addAction(action_open_folder)
+    
+        file_menu.addSeparator()
+
+
         file_menu.addSeparator()
         action_exit = QAction("Kilépés", self)
         action_exit.triggered.connect(self.close)
         file_menu.addAction(action_exit)
 
+        
         action_miniplayer = QAction("Mini lejátszó", self)
         action_miniplayer.triggered.connect(self.show_miniplayer)
         file_menu.addAction(action_miniplayer)
 
+        
         settings_menu = menubar.addMenu("Beállítások")
         action_settings = QAction("Beállítások megnyitása", self)
         action_settings.triggered.connect(self.open_settings)
@@ -89,7 +81,7 @@ class MainWindow(QMainWindow):
         self.toolbar.setAllowedAreas(Qt.AllToolBarAreas)
         self.addToolBar(Qt.TopToolBarArea, self.toolbar)
         self.toolbar.installEventFilter(self)
-        
+
         icon_dir = "resources/icons/"
         action_backward = QAction(QIcon(os.path.join(icon_dir, "rew.png")), "Visszatekerés", self)
         action_prev = QAction(QIcon(os.path.join(icon_dir, "prev.png")), "Előző", self)
@@ -115,12 +107,46 @@ class MainWindow(QMainWindow):
         self.toolbar.addAction(action_next)
         self.toolbar.addAction(action_forward)
 
+       
         self.volume_slider = QSlider(Qt.Horizontal)
         self.volume_slider.setRange(0, 100)
         self.volume_slider.setValue(self.audio_manager.get_volume())
         self.volume_slider.valueChanged.connect(self.on_volume_changed)
         self.toolbar.addWidget(self.volume_slider)
-        old_count = self.audio_manager.media_count()
+
+    def init_ui(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout(central_widget)
+        main_layout.setContentsMargins(8, 8, 8, 8)
+        main_layout.setSpacing(8)
+
+        
+        self.lbl_banner = QLabel("QWENZ")
+        self.lbl_banner.setObjectName("bannerLabel")  # QSS-ben külön stílust adunk neki
+        self.lbl_banner.setAlignment(Qt.AlignCenter)
+        main_layout.addWidget(self.lbl_banner)
+
+        
+        self.playlist_widget = QListWidget()
+        self.playlist_widget.currentRowChanged.connect(self.on_select_track)
+        main_layout.addWidget(self.playlist_widget, stretch=1)
+
+        
+        bottom_layout = QHBoxLayout()
+        self.btn_add = QPushButton("Hozzáadás")
+        self.btn_remove = QPushButton("Törlés")
+        self.btn_add.clicked.connect(self.add_songs)
+        self.btn_remove.clicked.connect(self.remove_song)
+        bottom_layout.addWidget(self.btn_add)
+        bottom_layout.addWidget(self.btn_remove)
+        main_layout.addLayout(bottom_layout)
+
+    def setup_status_bar(self):
+        status = QStatusBar()
+        self.setStatusBar(status)
+        self.lbl_status = QLabel("Nincs lejátszás")
+        status.addWidget(self.lbl_status)
 
     def eventFilter(self, obj, event):
         if obj == self.toolbar and event.type() in (QEvent.Move, QEvent.Resize, QEvent.LayoutRequest):
@@ -144,9 +170,36 @@ class MainWindow(QMainWindow):
     def on_volume_changed(self, value):
         self.audio_manager.set_volume(value)
 
+    def add_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, "Zene hozzáadása mappából")
+        if folder:
+       
+            old_count = self.audio_manager.media_count()
+        
+        
+        exts = (".mp3", ".wav", ".flac", ".ogg", ".aac")
+        
+        
+        for root, dirs, files in os.walk(folder):
+            for file in files:
+                if file.lower().endswith(exts):
+                    full_path = os.path.join(root, file)
+                    self.audio_manager.add_track(full_path)
+                    self.playlist_widget.addItem(os.path.basename(full_path))
+
+        
+        if old_count == 0 and self.audio_manager.media_count() > 0:
+            self.audio_manager.set_current_index(0)
+            self.audio_manager.play()
+
+
     def add_songs(self):
-        files, _ = QFileDialog.getOpenFileNames(self, "Zene hozzáadása", "",
-                                                "Audio files (*.mp3 *.wav *.flac *.ogg *.aac)")
+        files, _ = QFileDialog.getOpenFileNames(
+            self,
+            "Zene hozzáadása",
+            "",
+            "Audio files (*.mp3 *.wav *.flac *.ogg *.aac)"
+        )
         if files:
             old_count = self.audio_manager.media_count()
             for f in files:

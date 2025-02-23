@@ -1,123 +1,168 @@
+
+
+
 @font-face {
     font-family: "W95FA";
     src: url("../fonts/W95FA.otf");
 }
 
+
 QMainWindow {
-    background-color: #3A3A3A;
-    color: #FFFFFF;
+    background-color: #2F2A3E; 
+    color: #00FF00;           
     font-family: "W95FA";
-    font-size: 16px;
+    font-size: 14px;
+    border: 2px solid #444444;
 }
+
 
 QLabel {
-    background-color: #222222;
-    color: #ffcc00;
+    background-color: #3A334A; 
+    color: #00FF00;
     font-family: "W95FA";
-    font-size: 24px;
-    border: 2px solid #777;
-    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #555555;
+    padding: 4px;
 }
 
-/* Sötétebb 3D-s gombok */
+QLabel#bannerLabel {
+    font-size: 20px;
+    font-weight: bold;
+    color: #00FF00;
+    background-color: #4A435A;
+    border: 2px solid #777;
+    padding: 6px;
+}
+
 QPushButton {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #c0c0c0, stop:1 #909090);
-    border: 2px outset #555;
-    border-radius: 4px;
-    padding: 6px;
-    font-family: "W95FA";
+                                      stop:0 #8A8299, stop:1 #5C536E);
+    border: 2px outset #4A435A;
+    border-radius: 3px;
+    padding: 4px 10px;
     font-size: 12px;
+    color: #00FF00;
+}
+
+QPushButton:hover {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #9B92AB, stop:1 #6C627F);
 }
 
 QPushButton:pressed {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #909090, stop:1 #c0c0c0);
-    border: 2px inset #555;
+                                      stop:0 #5C536E, stop:1 #8A8299);
+    border: 2px inset #4A435A;
 }
+
 
 QToolButton {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #c0c0c0, stop:1 #909090);
-    border: 2px outset #555;
-    border-radius: 4px;
+                                      stop:0 #8A8299, stop:1 #5C536E);
+    border: 2px outset #4A435A;
+    border-radius: 2px;
     padding: 4px;
-    font-family: "W95FA";
     font-size: 12px;
+    color: #00FF00;
 }
 
 QToolButton:pressed {
     background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #909090, stop:1 #c0c0c0);
-    border: 2px inset #555;
+                                      stop:0 #5C536E, stop:1 #8A8299);
+    border: 2px inset #4A435A;
 }
 
 QMenuBar {
-    background-color: #222222;
-    color: #cccccc;
+    background-color: #3E374A;
+    color: #00FF00;
     font-family: "W95FA";
     font-size: 12px;
 }
 
+QMenuBar::item {
+    background: transparent;
+    padding: 4px 8px;
+}
+
 QMenuBar::item:selected {
-    background-color: #444444;
+    background-color: #4A435A;
 }
 
 QMenu {
-    background-color: #222222;
-    color: #cccccc;
+    background-color: #3E374A;
+    border: 1px solid #555555;
+    color: #00FF00;
     font-family: "W95FA";
     font-size: 12px;
 }
 
 QMenu::item:selected {
-    background-color: #444444;
+    background-color: #4A435A;
 }
 
 QToolBar {
-    background-color: #2C2C2C;
-    border: 1px solid #222222;
-    spacing: 8px;
+    background-color: #3E374A;
+    border: 1px solid #2A223A;
+    spacing: 4px;
 }
 
 QListWidget {
-    background-color: #555555;
-    color: #ffffff;
-    border: 1px solid #999999;
+    background-color: #2A223A;
+    color: #00FF00;
+    border: 1px solid #444444;
     font-family: "W95FA";
     font-size: 12px;
 }
 
 QSlider::groove:horizontal {
-    background: #999999;
-    height: 4px;
+    background: #444444;
+    height: 6px;
+    border: 1px solid #666666;
 }
 
 QSlider::handle:horizontal {
-    background: #ffffff;
+    background: #8A8299;
+    border: 1px solid #2A223A;
     width: 12px;
-    margin: -5px 0;
+    margin: -3px 0;
+    border-radius: 3px;
 }
 
 QSlider::groove:vertical {
-    background: #999999;
-    width: 4px;
+    background: #444444;
+    width: 6px;
+    border: 1px solid #666666;
 }
 
 QSlider::handle:vertical {
-    background: #ffffff;
+    background: #8A8299;
+    border: 1px solid #2A223A;
     height: 12px;
-    margin: 0 -5px;
+    margin: 0 -3px;
+    border-radius: 3px;
 }
 
 QCheckBox {
-    spacing: 8px;
     font-family: "W95FA";
     font-size: 12px;
-    color: #ffffff;
+    color: #00FF00;
+    spacing: 4px;
 }
 
 QCheckBox::indicator {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
+    border: 1px solid #666666;
+    background-color: #3E374A;
+}
+
+QCheckBox::indicator:checked {
+    image: url("../icons/checkbox_checked.png"); 
+}
+
+
+QStatusBar {
+    background-color: #3E374A;
+    color: #00FF00;
+    border-top: 1px solid #2A223A;
 }
