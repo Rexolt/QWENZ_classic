@@ -3,7 +3,7 @@ import pygame
 class AudioManagerPygame:
     def __init__(self):
         pygame.mixer.init(frequency=44100)
-        self.tracks = []  # Tárolja a track fájl elérési útvonalakat
+        self.tracks = []
         self.current_index = -1
 
     def add_track(self, path):
@@ -42,7 +42,6 @@ class AudioManagerPygame:
     def is_playing(self):
         return pygame.mixer.music.get_busy()
 
-
     def unpause(self):
         pygame.mixer.music.unpause()
 
@@ -68,6 +67,17 @@ class AudioManagerPygame:
     def get_volume(self):
         return int(pygame.mixer.music.get_volume() * 100)
 
-    # Itt adjuk hozzá a media_count metódust:
     def media_count(self):
         return len(self.tracks)
+
+    def shuffle_on(self):
+        pass
+
+    def shuffle_off(self):
+        pass
+
+    def repeat_on(self):
+        pass
+
+    def repeat_off(self):
+        pass

@@ -1,10 +1,7 @@
-
-
 @font-face {
     font-family: "W95FA";
     src: url("../fonts/W95FA.otf");
 }
-
 
 QMainWindow {
     background-color: #3A3A3A;
@@ -20,6 +17,39 @@ QLabel {
     font-size: 24px;
     border: 2px solid #777;
     padding: 8px;
+}
+
+/* Sötétebb 3D-s gombok */
+QPushButton {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #c0c0c0, stop:1 #909090);
+    border: 2px outset #555;
+    border-radius: 4px;
+    padding: 6px;
+    font-family: "W95FA";
+    font-size: 12px;
+}
+
+QPushButton:pressed {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #909090, stop:1 #c0c0c0);
+    border: 2px inset #555;
+}
+
+QToolButton {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #c0c0c0, stop:1 #909090);
+    border: 2px outset #555;
+    border-radius: 4px;
+    padding: 4px;
+    font-family: "W95FA";
+    font-size: 12px;
+}
+
+QToolButton:pressed {
+    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+                                      stop:0 #909090, stop:1 #c0c0c0);
+    border: 2px inset #555;
 }
 
 QMenuBar {
@@ -48,31 +78,6 @@ QToolBar {
     background-color: #2C2C2C;
     border: 1px solid #222222;
     spacing: 8px;
-}
-
-QToolButton {
-    background-color: #444444;
-    border: 1px solid #666666;
-    margin: 2px;
-    font-family: "W95FA";
-    font-size: 12px;
-}
-
-QToolButton:hover {
-    background-color: #555555;
-}
-
-QPushButton {
-    background-color: #666666;
-    color: #ffffff;
-    border: 1px solid #999999;
-    padding: 6px;
-    font-family: "W95FA";
-    font-size: 12px;
-}
-
-QPushButton:hover {
-    background-color: #888888;
 }
 
 QListWidget {

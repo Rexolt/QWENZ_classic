@@ -1,4 +1,5 @@
 import os
+import pygame
 from PyQt5.QtWidgets import (
     QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QListWidget,
     QPushButton, QFileDialog, QToolBar, QAction, QLabel, QSlider
@@ -6,10 +7,8 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt, QTimer, QEvent
 from PyQt5.QtGui import QIcon
 from audio.playback import AudioManagerPygame as AudioManager
-
 from ui.settingsdialog import SettingsDialog
 from ui.miniplayer import WinampMiniPlayer
-
 
 class MainWindow(QMainWindow):
     def __init__(self, config_manager):
@@ -18,7 +17,6 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
         self.mini_player = None
         
-
         self.config_manager = config_manager
         self.audio_manager = AudioManager()
 
@@ -40,7 +38,6 @@ class MainWindow(QMainWindow):
         self.lbl_banner.setAlignment(Qt.AlignCenter)
         main_layout.addWidget(self.lbl_banner)
         
-
         self.playlist_widget = QListWidget()
         self.playlist_widget.currentRowChanged.connect(self.on_select_track)
         main_layout.addWidget(self.playlist_widget, stretch=1)
@@ -60,7 +57,6 @@ class MainWindow(QMainWindow):
         self.lbl_status.setStyleSheet("QLabel { border: 1px solid #777; background-color: #333; padding: 4px; }")
         main_layout.addWidget(self.lbl_status)
         self.audio_manager.set_volume(self.config_manager.get_volume())
-
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_status)
@@ -94,7 +90,6 @@ class MainWindow(QMainWindow):
         self.addToolBar(Qt.TopToolBarArea, self.toolbar)
         self.toolbar.installEventFilter(self)
         
-
         icon_dir = "resources/icons/"
         action_backward = QAction(QIcon(os.path.join(icon_dir, "rew.png")), "Visszatekerés", self)
         action_prev = QAction(QIcon(os.path.join(icon_dir, "prev.png")), "Előző", self)
@@ -137,14 +132,14 @@ class MainWindow(QMainWindow):
         return super().eventFilter(obj, event)
 
     def seek_forward(self):
-        current_ms = self.audio_manager.player.position()
-        new_ms = current_ms + 5000
-        self.audio_manager.player.setPosition(new_ms)
+        current_ms = pygame.mixer.music.get_pos()
+        new_sec = (current_ms / 1000.0) + 5
+        pygame.mixer.music.set_pos(new_sec)
 
     def seek_backward(self):
-        current_ms = self.audio_manager.player.position()
-        new_ms = max(current_ms - 5000, 0)
-        self.audio_manager.player.setPosition(new_ms)
+        current_ms = pygame.mixer.music.get_pos()
+        new_sec = max((current_ms / 1000.0) - 5, 0)
+        pygame.mixer.music.set_pos(new_sec)
 
     def on_volume_changed(self, value):
         self.audio_manager.set_volume(value)
@@ -174,7 +169,6 @@ class MainWindow(QMainWindow):
 
     def update_status(self):
         idx = self.audio_manager.current_index
-
         if idx < 0 or idx >= self.playlist_widget.count():
             self.lbl_status.setText("Nincs lejátszás")
             return

@@ -1,16 +1,16 @@
 import os
 import pygame
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QIcon, QPixmap, QPainter, QColor
+from PyQt5.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
 from PyQt5.QtWidgets import (
     QWidget, QLabel, QPushButton, QSlider, QHBoxLayout,
     QVBoxLayout, QGraphicsDropShadowEffect, QStyle, QStyleOption
 )
 from ui.realviz_pygame import RealVizPygame
 from audio.playback import AudioManagerPygame as AudioManager
+from mutagen.id3 import ID3
 
 def add_3d_effect(button):
-    """Alkalmaz egy drop shadow-t a gombra a 3D hatás érdekében."""
     shadow = QGraphicsDropShadowEffect()
     shadow.setBlurRadius(8)
     shadow.setOffset(2, 2)
@@ -18,18 +18,15 @@ def add_3d_effect(button):
     button.setGraphicsEffect(shadow)
 
 class WinampMiniPlayer(QWidget):
-    """
-    Egy mini lejátszó retro–modern kinézettel, amely 3D-s gombokat használ,
-    integrálva van a RealVizPygame FFT vizualizáció.
-    """
     def __init__(self, audio_manager, parent=None):
         super().__init__(parent)
         self.audio_manager = audio_manager
+        self.current_track_file = None
 
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
-        self.setFixedSize(  430, 180)
+        self.setFixedSize(480, 260)
 
-       
+        
         self.background = QPixmap("resources/images/bgmin.png")
         if not self.background.isNull():
             self.background = self.background.scaled(self.size())
@@ -37,22 +34,30 @@ class WinampMiniPlayer(QWidget):
             self.background = QPixmap(self.size())
             self.background.fill(QColor("#2F3A3E"))
 
+        
         self.setStyleSheet("""
             WinampMiniPlayer {
-                background-color: #2F3A3E;
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #3F4247, stop:1 #2C2F33
+                );
                 color: #FFFFFF;
                 font-family: Arial, sans-serif;
             }
             QLabel#TitleLabel {
-                font-size: 14px;
+                font-size: 16px;
                 font-weight: bold;
+                color: #FFFFFF;
             }
             QLabel#SubLabel {
-                font-size: 11px;
-                color: #aaaaaa;
+                font-size: 12px;
+                color: #CCCCCC;
             }
             QPushButton {
-                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #5E6B72, stop:1 #3B464D);
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #5E6B72, stop:1 #3B464D
+                );
                 border: 1px solid #2E3A40;
                 border-radius: 8px;
                 padding: 5px;
@@ -60,10 +65,16 @@ class WinampMiniPlayer(QWidget):
                 font-weight: bold;
             }
             QPushButton:hover {
-                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #6E7B82, stop:1 #4B5860);
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #6E7B82, stop:1 #4B5860
+                );
             }
             QPushButton:pressed {
-                background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #3B464D, stop:1 #5E6B72);
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #3B464D, stop:1 #5E6B72
+                );
                 border-style: inset;
             }
             QSlider::groove:horizontal {
@@ -80,6 +91,7 @@ class WinampMiniPlayer(QWidget):
             }
         """)
 
+        # Dobozárnyék az egész ablakra
         shadow = QGraphicsDropShadowEffect(self)
         shadow.setBlurRadius(15)
         shadow.setXOffset(0)
@@ -90,42 +102,91 @@ class WinampMiniPlayer(QWidget):
         self._drag_pos = None
         self.init_ui()
 
+        
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_info)
         self.timer.start(500)
 
     def init_ui(self):
-        main_layout = QHBoxLayout(self)
+       
+        main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(10)
+        main_layout.setSpacing(5)
+
+      
+        top_layout = QHBoxLayout()
+        main_layout.addLayout(top_layout)
 
         
         self.album_art_label = QLabel()
-        self.album_art_label.setFixedSize(80, 80)
-        album_pixmap = QPixmap("resources/images/album_art.jpg")
-        if album_pixmap.isNull():
-            album_pixmap = QPixmap(80, 80)
-            album_pixmap.fill(QColor("#555555"))
+        self.album_art_label.setFixedSize(90, 90)
+        default_art = QPixmap("resources/images/album_art.jpg")
+        if default_art.isNull():
+            default_art = QPixmap(90, 90)
+            default_art.fill(QColor("#555555"))
         else:
-            album_pixmap = album_pixmap.scaled(80, 80, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.album_art_label.setPixmap(album_pixmap)
-        main_layout.addWidget(self.album_art_label)
+            default_art = default_art.scaled(
+                self.album_art_label.size(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+        self.album_art_label.setPixmap(default_art)
+        top_layout.addWidget(self.album_art_label)
 
-        right_layout = QVBoxLayout()
-        right_layout.setSpacing(5)
-        main_layout.addLayout(right_layout)
+        
+        mid_layout = QVBoxLayout()
+        top_layout.addLayout(mid_layout)
 
-        self.label_title = QLabel("Retro Track Title")
+        self.label_title = QLabel("Cím")
         self.label_title.setObjectName("TitleLabel")
-        self.label_sub = QLabel("Artist / Info")
+        self.label_sub = QLabel("Előadó")
         self.label_sub.setObjectName("SubLabel")
-        right_layout.addWidget(self.label_title)
-        right_layout.addWidget(self.label_sub)
+        mid_layout.addWidget(self.label_title)
+        mid_layout.addWidget(self.label_sub)
 
+        
+        self.viz_widget = RealVizPygame(self.audio_manager)
+        mid_layout.addWidget(self.viz_widget)
+
+        
+        right_layout = QVBoxLayout()
+        top_layout.addLayout(right_layout)
+
+        self.label_time = QLabel("00:00")
+        font_time = QFont()
+        font_time.setPointSize(14)
+        font_time.setBold(True)
+        self.label_time.setFont(font_time)
+        self.label_time.setStyleSheet("color: #00FFC9;")
+        right_layout.addWidget(self.label_time, alignment=Qt.AlignRight)
+
+        
+        self.btn_close = QPushButton("X")
+        self.btn_close.setFixedSize(24, 24)
+        self.btn_close.clicked.connect(self.close)
+        self.btn_close.setStyleSheet("""
+            QPushButton {
+                background-color: #444;
+                border: none;
+                border-radius: 12px;
+                color: #fff;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #666;
+            }
+            QPushButton:pressed {
+                background-color: #222;
+            }
+        """)
+        right_layout.addWidget(self.btn_close, alignment=Qt.AlignRight)
+        right_layout.addStretch()
+
+        
         controls_layout = QHBoxLayout()
-        controls_layout.setSpacing(5)
-        icon_dir = "resources/icons/"
+        main_layout.addLayout(controls_layout)
 
+        icon_dir = "resources/icons/"
         btn_prev = QPushButton()
         btn_prev.setIcon(QIcon(os.path.join(icon_dir, "prev.png")))
         btn_prev.clicked.connect(self.audio_manager.previous_track)
@@ -156,60 +217,90 @@ class WinampMiniPlayer(QWidget):
         add_3d_effect(btn_next)
         controls_layout.addWidget(btn_next)
 
-        self.label_time = QLabel("00:00")
-        self.label_time.setStyleSheet("font-size: 12px;")
-        controls_layout.addWidget(self.label_time)
+        
+        volume_layout = QHBoxLayout()
+        main_layout.addLayout(volume_layout)
 
-        right_layout.addLayout(controls_layout)
+        lbl_vol = QLabel("Hangerő:")
+        lbl_vol.setStyleSheet("color: #CCCCCC; font-size: 12px;")
+        volume_layout.addWidget(lbl_vol)
 
-        self.viz_widget = RealVizPygame(self.audio_manager)
-        right_layout.addWidget(self.viz_widget)
-
-        slider_layout = QHBoxLayout()
         self.slider_volume = QSlider(Qt.Horizontal)
         self.slider_volume.setRange(0, 100)
         self.slider_volume.setValue(self.audio_manager.get_volume())
         self.slider_volume.valueChanged.connect(self.audio_manager.set_volume)
-        slider_layout.addWidget(self.slider_volume)
-        right_layout.addLayout(slider_layout)
-
-        self.btn_close = QPushButton("X")
-        self.btn_close.setFixedSize(20, 20)
-        self.btn_close.clicked.connect(self.close)
-        self.btn_close.setStyleSheet("""
-            QPushButton {
-                background-color: #444;
-                border: none;
-                border-radius: 10px;
-                color: #fff;
-                font-size: 10px;
-            }
-            QPushButton:hover {
-                background-color: #666;
-            }
-            QPushButton:pressed {
-                background-color: #222;
-            }
-        """)
-        close_layout = QHBoxLayout()
-        close_layout.addStretch()
-        close_layout.addWidget(self.btn_close)
-        close_layout.setContentsMargins(0, 0, 0, 0)
-        main_layout.addLayout(close_layout)
+        volume_layout.addWidget(self.slider_volume)
 
     def update_info(self):
+       
+        self.update_metadata()
         pos_ms = pygame.mixer.music.get_pos()
         pos_sec = pos_ms // 1000 if pos_ms >= 0 else 0
         m, s = divmod(pos_sec, 60)
         time_str = f"{m:02d}:{s:02d}"
         self.label_time.setText(time_str)
 
+    def update_metadata(self):
+        
+        current_file = self.audio_manager.get_current_track_file()
+        if current_file and current_file != self.current_track_file:
+            self.current_track_file = current_file
+            title, artist, album_art = self.load_metadata(current_file)
+            self.label_title.setText(title if title else os.path.basename(current_file))
+            self.label_sub.setText(artist if artist else "Ismeretlen előadó")
+
+            if album_art:
+                pixmap = QPixmap()
+                pixmap.loadFromData(album_art)
+                pixmap = pixmap.scaled(
+                    self.album_art_label.size(),
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation
+                )
+                self.album_art_label.setPixmap(pixmap)
+            else:
+                
+                default_art = QPixmap("resources/images/album_art.jpg")
+                if default_art.isNull():
+                    default_art = QPixmap(self.album_art_label.size())
+                    default_art.fill(QColor("#555555"))
+                else:
+                    default_art = default_art.scaled(
+                        self.album_art_label.size(),
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation
+                    )
+                self.album_art_label.setPixmap(default_art)
+
+    def load_metadata(self, file_path):
+
+        from mutagen.id3 import ID3
+        try:
+            audio = ID3(file_path)
+            title = audio.get('TIT2')
+            artist = audio.get('TPE1')
+            album_art = None
+            apic_list = audio.getall("APIC")
+            if apic_list:
+                album_art = apic_list[0].data  
+            title_text = title.text[0] if title and title.text else None
+            artist_text = artist.text[0] if artist and artist.text else None
+            return title_text, artist_text, album_art
+        except Exception as e:
+            print("Metadata load error:", e)
+            return None, None, None
+
     def paintEvent(self, event):
+       
         opt = QStyleOption()
         opt.initFrom(self)
         painter = QPainter(self)
         if not self.background.isNull():
-            scaled_bg = self.background.scaled(self.size(), Qt.KeepAspectRatioByExpanding, Qt.SmoothTransformation)
+            scaled_bg = self.background.scaled(
+                self.size(),
+                Qt.KeepAspectRatioByExpanding,
+                Qt.SmoothTransformation
+            )
             painter.drawPixmap(0, 0, scaled_bg)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 
