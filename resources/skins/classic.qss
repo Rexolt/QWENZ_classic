@@ -1,168 +1,158 @@
-
-
-
 @font-face {
     font-family: "W95FA";
     src: url("../fonts/W95FA.otf");
 }
 
-
 QMainWindow {
-    background-color: #2F2A3E; 
-    color: #00FF00;           
+    background-color: #606060; /* Még sötétebb szürke */
+    color: #FFFFFF;
     font-family: "W95FA";
-    font-size: 14px;
-    border: 2px solid #444444;
+    font-size: 12px;
+    border: 2px solid #404040;
 }
 
-
 QLabel {
-    background-color: #3A334A; 
-    color: #00FF00;
+    background-color: #606060;
+    color: #FFFFFF;
     font-family: "W95FA";
-    font-size: 14px;
-    border: 1px solid #555555;
+    font-size: 12px;
+    border: 1px solid #404040;
     padding: 4px;
 }
 
 QLabel#bannerLabel {
-    font-size: 20px;
+    font-size: 16px;
     font-weight: bold;
-    color: #00FF00;
-    background-color: #4A435A;
-    border: 2px solid #777;
-    padding: 6px;
+    color: #000080; /* Sötétkék, Windows-stílusú */
+    background-color: #C0C0C0;
+    border: 2px ridge #808080;
+    padding: 4px;
 }
 
 QPushButton {
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #8A8299, stop:1 #5C536E);
-    border: 2px outset #4A435A;
-    border-radius: 3px;
+    background-color: #808080; /* Sötétebb gombok */
+    border: 2px ridge #404040;
+    border-radius: 0px;
     padding: 4px 10px;
     font-size: 12px;
-    color: #00FF00;
+    color: #FFFFFF; /* Fehér szöveg a gombokon */
 }
 
 QPushButton:hover {
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #9B92AB, stop:1 #6C627F);
+    background-color: #D0D0D0; /* Világosabb szürke */
 }
 
 QPushButton:pressed {
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #5C536E, stop:1 #8A8299);
-    border: 2px inset #4A435A;
+    background-color: #A0A0A0; /* Sötétebb szürke, lenyomott hatás */
+    border: 2px inset #808080; /* Süllyesztett hatás */
 }
 
-
 QToolButton {
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #8A8299, stop:1 #5C536E);
-    border: 2px outset #4A435A;
-    border-radius: 2px;
+    background-color: #C0C0C0;
+    border: 2px ridge #808080;
+    border-radius: 0px;
     padding: 4px;
-    font-size: 12px;
-    color: #00FF00;
+    color: #000000;
 }
 
 QToolButton:pressed {
-    background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
-                                      stop:0 #5C536E, stop:1 #8A8299);
-    border: 2px inset #4A435A;
+    background-color: #A0A0A0;
+    border: 2px inset #808080;
 }
 
 QMenuBar {
-    background-color: #3E374A;
-    color: #00FF00;
+    background-color: #C0C0C0;
+    color: #000000;
     font-family: "W95FA";
     font-size: 12px;
+    border-bottom: 1px solid #808080;
 }
 
 QMenuBar::item {
     background: transparent;
-    padding: 4px 8px;
+    padding: 2px 6px;
 }
 
 QMenuBar::item:selected {
-    background-color: #4A435A;
+    background-color: #000080; /* Kék kiemelés */
+    color: #FFFFFF;
 }
 
 QMenu {
-    background-color: #3E374A;
-    border: 1px solid #555555;
-    color: #00FF00;
+    background-color: #C0C0C0;
+    border: 1px solid #808080;
+    color: #000000;
     font-family: "W95FA";
     font-size: 12px;
 }
 
 QMenu::item:selected {
-    background-color: #4A435A;
+    background-color: #000080;
+    color: #FFFFFF;
 }
 
 QToolBar {
-    background-color: #3E374A;
-    border: 1px solid #2A223A;
-    spacing: 4px;
+    background-color: #C0C0C0;
+    border: 1px solid #808080;
+    spacing: 2px;
 }
 
 QListWidget {
-    background-color: #2A223A;
-    color: #00FF00;
-    border: 1px solid #444444;
+    background-color: #707070; /* Sötétebb lista háttér */
+    color: #FFFFFF;
+    border: 1px solid #404040;
     font-family: "W95FA";
     font-size: 12px;
 }
 
 QSlider::groove:horizontal {
-    background: #444444;
+    background: #A0A0A0;
     height: 6px;
-    border: 1px solid #666666;
+    border: 1px solid #808080;
 }
 
 QSlider::handle:horizontal {
-    background: #8A8299;
-    border: 1px solid #2A223A;
+    background: #C0C0C0;
+    border: 1px solid #000000;
     width: 12px;
     margin: -3px 0;
-    border-radius: 3px;
+    border-radius: 0px; /* Szögletes fogantyú */
 }
 
 QSlider::groove:vertical {
-    background: #444444;
+    background: #A0A0A0;
     width: 6px;
-    border: 1px solid #666666;
+    border: 1px solid #808080;
 }
 
 QSlider::handle:vertical {
-    background: #8A8299;
-    border: 1px solid #2A223A;
+    background: #C0C0C0;
+    border: 1px solid #000000;
     height: 12px;
     margin: 0 -3px;
-    border-radius: 3px;
+    border-radius: 0px;
 }
 
 QCheckBox {
     font-family: "W95FA";
     font-size: 12px;
-    color: #00FF00;
+    color: #000000;
     spacing: 4px;
 }
 
 QCheckBox::indicator {
-    width: 16px;
-    height: 16px;
-    border: 1px solid #666666;
-    background-color: #3E374A;
+    width: 13px;
+    height: 13px;
+    border: 1px solid #808080;
+    background-color: #FFFFFF;
 }
 
 QCheckBox::indicator:checked {
-    image: url("../icons/checkbox_checked.png"); 
+    image: url("../icons/checkbox_checked.png"); /* Ellenőrizni kell, hogy retró-e */
 }
 
-
 QStatusBar {
-    background-color: #3E374A;
-    color: #00FF00;
-    border-top: 1px solid #2A223A;
+    background-color: #C0C0C0;
+    color: #000000;
+    border-top: 1px solid #808080;
 }

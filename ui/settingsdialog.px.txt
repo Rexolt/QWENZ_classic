@@ -14,7 +14,7 @@ class SettingsDialog(QDialog):
         f = QFrame()
         h = QHBoxLayout()
         f.setLayout(h)
-        f.setStyleSheet("QFrame { border: 2px ridge #808080; background-color: #C0C0C0; }")
+        f.setStyleSheet("QFrame { border: 1px solid #888; }")
         layout.addWidget(f)
 
         self.eq_sliders = []

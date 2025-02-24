@@ -1,7 +1,7 @@
 import numpy as np
 import os
 from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QPainter, QColor, QLinearGradient, QBrush, QPen
+from PyQt5.QtGui import QPainter, QColor, QPen
 from PyQt5.QtWidgets import QWidget, QStyle, QStyleOption
 import pygame
 from audio.playback import AudioManagerPygame as AudioManager
@@ -73,23 +73,15 @@ class RealVizPygame(QWidget):
 
     def paintEvent(self, event):
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-
-        
-        opt = QStyleOption()
-        opt.initFrom(self)
-        self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
-
-        
-        bg_gradient = QLinearGradient(0, 0, 0, self.height())
-        bg_gradient.setColorAt(0, QColor("#2A2A2A"))
-        bg_gradient.setColorAt(1, QColor("#1E1E1E"))
-        painter.fillRect(self.rect(), bg_gradient)
+        painter.fillRect(self.rect(), QColor("#000000"))  # Fekete háttér
 
         w = self.width()
         h = self.height()
         bar_w = w // self.num_bins
         max_amp = 0.5
+
+        painter.setPen(QPen(QColor("#00FF00"), 1))  # Zöld sávok
+        painter.setBrush(QColor("#00FF00"))
 
         for i, amp in enumerate(self.amplitudes):
             x = i * bar_w
@@ -97,37 +89,8 @@ class RealVizPygame(QWidget):
             val = min(val, 1.0)
             bar_h = val * h
             y = h - bar_h
+            painter.drawRect(int(x + 1), int(y), int(bar_w - 2), int(bar_h))
 
-           
-            bar_gradient = QLinearGradient(x, y, x, y + bar_h)
-            bar_gradient.setColorAt(0.0, QColor("#00FFC9"))  # felső
-            bar_gradient.setColorAt(1.0, QColor("#00796B"))  # alsó
-
-            painter.setBrush(QBrush(bar_gradient))
-            painter.setPen(Qt.NoPen)
-            painter.drawRoundedRect(
-                int(x + 1),
-                int(y),
-                int(bar_w - 2),
-                int(bar_h),
-                3,
-                3
-            )
-
-           
-            reflection_h = bar_h * 0.4
-            reflection_y = y + bar_h
-            reflection_gradient = QLinearGradient(x, reflection_y, x, reflection_y + reflection_h)
-            reflection_gradient.setColorAt(0.0, QColor(0, 255, 201, 120))
-            reflection_gradient.setColorAt(1.0, QColor(0, 255, 201, 0))
-
-            painter.setBrush(QBrush(reflection_gradient))
-            painter.drawRoundedRect(
-                int(x + 1),
-                int(reflection_y),
-                int(bar_w - 2),
-                int(reflection_h),
-                3,
-                3
-            )
-            self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
+        opt = QStyleOption()
+        opt.initFrom(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
