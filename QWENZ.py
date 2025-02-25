@@ -6,10 +6,9 @@ from config.configmanager import ConfigManager
 from ui.mainwindow import MainWindow
 
 def resource_path(relative_path):
-    """Visszaadja a helyes elérési utat a megadott relatív úthoz.
-    Használható akkor is, ha a programot csomagolva futtatjuk."""
+
     try:
-        base_path = sys._MEIPASS  # PyInstaller által létrehozott ideiglenes mappa
+        base_path = sys._MEIPASS  
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
@@ -30,16 +29,29 @@ def main():
         if families:
             app.setFont(QFont(families[0], 14))
     
-    qss_path = resource_path(os.path.join("resources", "skins", "classic.qss"))
-    with open(qss_path, "r", encoding="utf-8") as f:
-        qss = f.read()
-    app.setStyleSheet(qss)
+    selected_style = config_manager.get_style()
+    if selected_style == "Windows 95 Retro":
+        qss_rel_path = os.path.join("resources", "skins", "win95_dark_v2.qss")
+    elif selected_style == "Klasszikus":
+        qss_rel_path = os.path.join("resources", "skins", "classic.qss")
+    elif selected_style == "Sötét":
+        qss_rel_path = os.path.join("resources", "skins", "modern.qss")
+    else:
+        qss_rel_path = os.path.join("resources", "skins", "win95_dark_v2.qss")
+    
+    qss_path = resource_path(qss_rel_path)
+    try:
+        with open(qss_path, "r", encoding="utf-8") as f:
+            qss = f.read()
+        app.setStyleSheet(qss)
+    except Exception as e:
+        print("Hiba a stílus betöltésekor:", e)
    
     window = MainWindow(config_manager)
     window.show()
     
     exit_code = app.exec_()
-   
+    
     config_manager.save_config()
     sys.exit(exit_code)
 

@@ -8,7 +8,8 @@ class ConfigManager:
             "volume": 50,
             "shuffle": False,
             "repeat": False,
-            "eqValues": [0, 0, 0, 0, 0]
+            "eqValues": [0, 0, 0, 0, 0],
+            "style": "Sötét"  # Alapértelmezett stílus, pl. "Sötét"
         }
 
     def load_config(self):
@@ -50,3 +51,10 @@ class ConfigManager:
 
     def set_eq_values(self, eq_list):
         self.data["eqValues"] = eq_list
+
+    # Új metódusok a stílus kezeléséhez
+    def get_style(self):
+        return self.data.get("style", "Sötét")
+
+    def set_style(self, style):
+        self.data["style"] = style
