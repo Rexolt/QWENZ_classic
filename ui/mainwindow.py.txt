@@ -10,6 +10,7 @@ from PyQt5.QtGui import QIcon
 from audio.playback import AudioManagerPygame as AudioManager
 from ui.settingsdialog import SettingsDialog
 from ui.miniplayer import WinampMiniPlayer
+from ui.realviz_pygame import RealVizPygame  # Vizualizáció importálása
 
 def resource_path(relative_path):
     try:
@@ -110,7 +111,7 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout(central_widget)
         main_layout.setContentsMargins(8, 8, 8, 8)
-        main_layout.setSpacing(4)  # Kisebbre állítva a retró hatás miatt
+        main_layout.setSpacing(4)  # Csökkentett spacing a retró hatásért
 
         self.lbl_banner = QLabel("QWENZ")
         self.lbl_banner.setObjectName("bannerLabel")
@@ -120,6 +121,10 @@ class MainWindow(QMainWindow):
         self.playlist_widget = QListWidget()
         self.playlist_widget.currentRowChanged.connect(self.on_select_track)
         main_layout.addWidget(self.playlist_widget, stretch=1)
+
+        # Vizualizáció widget hozzáadása a főablakhoz
+        self.viz_widget = RealVizPygame(self.audio_manager)
+        main_layout.addWidget(self.viz_widget)
 
         bottom_layout = QHBoxLayout()
         self.btn_add = QPushButton("Hozzáadás")

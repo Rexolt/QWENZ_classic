@@ -1,30 +1,23 @@
 import numpy as np
 import os
 from PyQt5.QtCore import QTimer, Qt
-from PyQt5.QtGui import QPainter, QColor
-from PyQt5.QtWidgets import QWidget
-from audio.playback import AudioManagerPygame as AudioManager
-
+from PyQt5.QtGui import QPainter, QColor, QPen
+from PyQt5.QtWidgets import QWidget, QStyle, QStyleOption
 import pygame
-
+from audio.playback import AudioManagerPygame as AudioManager
 
 CHUNK = 1024
 RATE = 44100
 
 class RealVizPygame(QWidget):
-    """
-    Audio vizualizációs widget pygame segítségével.
-    A lejátszott track teljes hangát memóriában betölti, majd a pygame.mixer.music.get_pos()
-    alapján meghatározott szeletre FFT-et számol és megjeleníti az FFT spektrumot.
-    """
     def __init__(self, audio_manager, parent=None):
         super().__init__(parent)
         self.audio_manager = audio_manager
-        self.setFixedSize(150, 50)
+        self.setFixedSize(200, 80)
         self.num_bins = 16
-        self.amplitudes = np.zeros(self.num_bins)
         self.CHUNK = CHUNK
         self.RATE = RATE
+        self.amplitudes = np.zeros(self.num_bins)
         self.audio_samples = None
 
         if not pygame.mixer.get_init():
@@ -34,13 +27,9 @@ class RealVizPygame(QWidget):
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_visualization)
-        self.timer.start(50)  
+        self.timer.start(50)
 
     def load_audio_samples(self):
-        """
-        A jelenlegi track audio adatainak betöltése numpy tömbbe.
-        A pygame.sndarray segítségével.
-        """
         file_path = self.audio_manager.get_current_track_file()
         if not file_path:
             print("Nincs érvényes track fájl a vizualizációhoz.")
@@ -57,22 +46,18 @@ class RealVizPygame(QWidget):
             print("Hiba az audio samples betöltésekor:", e)
 
     def update_visualization(self):
-        """
-        A jelenlegi lejátszási pozíció alapján kiválasztja a megfelelő CHUNK méretű audio szeletet,
-        FFT-et számol, majd a kapott spektrumot sávokra bontja a vizualizációhoz.
-        """
-        pos_ms = pygame.mixer.music.get_pos() 
+        pos_ms = pygame.mixer.music.get_pos()
         if pos_ms < 0 or self.audio_samples is None:
             return
         pos_samples = int((pos_ms / 1000.0) * self.RATE)
         if pos_samples + self.CHUNK > len(self.audio_samples):
-            return  
-        chunk = self.audio_samples[pos_samples:pos_samples+self.CHUNK]
+            return
+        chunk = self.audio_samples[pos_samples:pos_samples + self.CHUNK]
         window = np.hanning(len(chunk))
         windowed = chunk * window
         fft_result = np.fft.rfft(windowed)
         magnitude = np.abs(fft_result)
-        
+
         freqs = np.linspace(0, len(magnitude) - 1, self.num_bins + 1)
         new_amplitudes = []
         for i in range(self.num_bins):
@@ -84,23 +69,28 @@ class RealVizPygame(QWidget):
                 avg_val = 0
             new_amplitudes.append(avg_val)
         self.amplitudes = np.array(new_amplitudes)
-        self.update()  
+        self.update()
 
     def paintEvent(self, event):
-        """
-        Kirajzolja a vizualizációt: minden frekvenciasávot egy sávval jelenít meg,
-        melynek magassága az adott sáv átlagos amplitúdójától függ.
-        """
         painter = QPainter(self)
+        painter.fillRect(self.rect(), QColor("#000000"))  # Fekete háttér
+
         w = self.width()
         h = self.height()
         bar_w = w // self.num_bins
-        
         max_amp = 0.5
+
+        painter.setPen(QPen(QColor("#00FF00"), 1))  # Zöld sávok
+        painter.setBrush(QColor("#00FF00"))
+
         for i, amp in enumerate(self.amplitudes):
             x = i * bar_w
             val = amp / max_amp
             val = min(val, 1.0)
             bar_h = val * h
             y = h - bar_h
-            painter.fillRect(int(x+1), int(y), int(bar_w-2), int(bar_h), QColor("#00FF00"))
+            painter.drawRect(int(x + 1), int(y), int(bar_w - 2), int(bar_h))
+
+        opt = QStyleOption()
+        opt.initFrom(self)
+        self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)

@@ -1,5 +1,5 @@
 {
-    "volume": 54,
+    "volume": 50,
     "shuffle": false,
     "repeat": false,
     "eqValues": [
@@ -8,6 +8,5 @@
         0,
         0,
         0
-    ],
-    "style": "Sötét"
+    ]
 }

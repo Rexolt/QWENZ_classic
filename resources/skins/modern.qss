@@ -1,0 +1,129 @@
+@font-face {
+    font-family: "ModernFont";
+    src: url("../fonts/ModernFont.otf");
+}
+
+QMainWindow {
+    background-color: #f0f0f0;
+    color: #333333;
+    font-family: "ModernFont";
+    font-size: 14px;
+}
+
+QLabel {
+    color: #333333;
+    font-family: "ModernFont";
+    font-size: 18px;
+    padding: 6px;
+}
+
+QMenuBar {
+    background-color: #ffffff;
+    color: #333333;
+    font-family: "ModernFont";
+    font-size: 12px;
+    border-bottom: 1px solid #cccccc;
+}
+
+QMenuBar::item {
+    background-color: #ffffff;
+    padding: 4px 10px;
+}
+
+QMenuBar::item:selected {
+    background-color: #e0e0e0;
+}
+
+QMenu {
+    background-color: #ffffff;
+    color: #333333;
+    font-family: "ModernFont";
+    font-size: 12px;
+    border: 1px solid #cccccc;
+    padding: 4px;
+}
+
+QMenu::item:selected {
+    background-color: #e0e0e0;
+}
+
+QToolBar {
+    background-color: #ffffff;
+    border: none;
+    spacing: 4px;
+    padding: 4px;
+}
+
+QToolButton {
+    background-color: #e0e0e0;
+    border: none;
+    padding: 4px 8px;
+    font-family: "ModernFont";
+    font-size: 12px;
+}
+
+QToolButton:hover {
+    background-color: #d0d0d0;
+}
+
+QPushButton {
+    background-color: #0078d7;
+    color: #ffffff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 2px;
+    font-family: "ModernFont";
+    font-size: 12px;
+}
+
+QPushButton:hover {
+    background-color: #005a9e;
+}
+
+QListWidget {
+    background-color: #ffffff;
+    color: #333333;
+    border: 1px solid #cccccc;
+    font-family: "ModernFont";
+    font-size: 12px;
+}
+
+QSlider::groove:horizontal {
+    background: #cccccc;
+    height: 6px;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: #0078d7;
+    width: 14px;
+    height: 14px;
+    margin: -4px 0;
+    border-radius: 7px;
+}
+
+QSlider::groove:vertical {
+    background: #cccccc;
+    width: 6px;
+    border-radius: 3px;
+}
+
+QSlider::handle:vertical {
+    background: #0078d7;
+    width: 14px;
+    height: 14px;
+    margin: 0 -4px;
+    border-radius: 7px;
+}
+
+QCheckBox {
+    font-family: "ModernFont";
+    font-size: 12px;
+    color: #333333;
+    spacing: 4px;
+}
+
+QCheckBox::indicator {
+    width: 16px;
+    height: 16px;
+}

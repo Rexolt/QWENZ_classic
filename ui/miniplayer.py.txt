@@ -4,17 +4,26 @@ import pygame
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QIcon, QPixmap, QPainter, QColor, QFont
 from PyQt5.QtWidgets import (
-    QWidget, QLabel, QPushButton, QSlider, QHBoxLayout, QVBoxLayout, QStyle, QStyleOption
+    QWidget, QLabel, QPushButton, QSlider, QHBoxLayout,
+    QVBoxLayout, QGraphicsDropShadowEffect, QStyle, QStyleOption
 )
 from ui.realviz_pygame import RealVizPygame
 from audio.playback import AudioManagerPygame as AudioManager
 
+# resource_path() függvény
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+
+def add_3d_effect(button):
+    shadow = QGraphicsDropShadowEffect()
+    shadow.setBlurRadius(8)
+    shadow.setOffset(2, 2)
+    shadow.setColor(QColor(0, 0, 0, 160))
+    button.setGraphicsEffect(shadow)
 
 class WinampMiniPlayer(QWidget):
     def __init__(self, audio_manager, parent=None):
@@ -25,50 +34,78 @@ class WinampMiniPlayer(QWidget):
         self.setWindowFlags(Qt.Window | Qt.FramelessWindowHint)
         self.setFixedSize(480, 260)
 
+        # Háttérkép beállítása
+        bg_path = resource_path(os.path.join("resources", "images", "bgmin.png"))
+        self.background = QPixmap(bg_path)
+        if not self.background.isNull():
+            self.background = self.background.scaled(self.size())
+        else:
+            self.background = QPixmap(self.size())
+            self.background.fill(QColor("#2F3A3E"))
+
+        # Stíluslap (ez marad)
         self.setStyleSheet("""
             WinampMiniPlayer {
-                background-color: #C0C0C0;
-                color: #000000;
-                font-family: "W95FA";
-                font-size: 12px;
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #3F4247, stop:1 #2C2F33
+                );
+                color: #FFFFFF;
+                font-family: Arial, sans-serif;
             }
             QLabel#TitleLabel {
-                font-size: 14px;
+                font-size: 16px;
                 font-weight: bold;
-                color: #000080;
+                color: #FFFFFF;
             }
             QLabel#SubLabel {
-                font-size: 10px;
-                color: #000000;
+                font-size: 12px;
+                color: #CCCCCC;
             }
             QPushButton {
-                background-color: #C0C0C0;
-                border: 2px ridge #808080;
-                border-radius: 0px;
-                padding: 4px;
-                color: #000000;
-                font-family: "W95FA";
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #5E6B72, stop:1 #3B464D
+                );
+                border: 1px solid #2E3A40;
+                border-radius: 8px;
+                padding: 5px;
+                color: #FFFFFF;
+                font-weight: bold;
             }
             QPushButton:hover {
-                background-color: #D0D0D0;
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #6E7B82, stop:1 #4B5860
+                );
             }
             QPushButton:pressed {
-                background-color: #A0A0A0;
-                border: 2px inset #808080;
+                background-color: qlineargradient(
+                    spread:pad, x1:0, y1:0, x2:0, y2:1,
+                    stop:0 #3B464D, stop:1 #5E6B72
+                );
+                border-style: inset;
             }
             QSlider::groove:horizontal {
-                border: 1px solid #808080;
-                height: 6px;
-                background: #A0A0A0;
+                border: 1px solid #777;
+                height: 4px;
+                background: #444;
             }
             QSlider::handle:horizontal {
-                background: #C0C0C0;
-                border: 1px solid #000000;
-                width: 12px;
-                margin: -3px 0;
-                border-radius: 0px;
+                background: #ffffff;
+                border: 1px solid #777;
+                width: 10px;
+                margin: -5px 0;
+                border-radius: 5px;
             }
         """)
+
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(0)
+        shadow.setYOffset(3)
+        shadow.setColor(QColor(0, 0, 0, 180))
+        self.setGraphicsEffect(shadow)
 
         self._drag_pos = None
         self.init_ui()
@@ -80,7 +117,7 @@ class WinampMiniPlayer(QWidget):
     def init_ui(self):
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(10, 10, 10, 10)
-        main_layout.setSpacing(4)
+        main_layout.setSpacing(5)
 
         top_layout = QHBoxLayout()
         main_layout.addLayout(top_layout)
@@ -90,9 +127,13 @@ class WinampMiniPlayer(QWidget):
         default_art = QPixmap(resource_path(os.path.join("resources", "images", "album_art.jpg")))
         if default_art.isNull():
             default_art = QPixmap(90, 90)
-            default_art.fill(QColor("#C0C0C0"))
+            default_art.fill(QColor("#555555"))
         else:
-            default_art = default_art.scaled(self.album_art_label.size(), Qt.KeepAspectRatio)
+            default_art = default_art.scaled(
+                self.album_art_label.size(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
         self.album_art_label.setPixmap(default_art)
         top_layout.addWidget(self.album_art_label)
 
@@ -113,14 +154,31 @@ class WinampMiniPlayer(QWidget):
         top_layout.addLayout(right_layout)
 
         self.label_time = QLabel("00:00")
-        font_time = QFont("W95FA", 12, QFont.Bold)
+        font_time = QFont()
+        font_time.setPointSize(14)
+        font_time.setBold(True)
         self.label_time.setFont(font_time)
-        self.label_time.setStyleSheet("color: #000080;")
+        self.label_time.setStyleSheet("color: #00FFC9;")
         right_layout.addWidget(self.label_time, alignment=Qt.AlignRight)
 
         self.btn_close = QPushButton("X")
         self.btn_close.setFixedSize(24, 24)
         self.btn_close.clicked.connect(self.close)
+        self.btn_close.setStyleSheet("""
+            QPushButton {
+                background-color: #444;
+                border: none;
+                border-radius: 12px;
+                color: #fff;
+                font-size: 12px;
+            }
+            QPushButton:hover {
+                background-color: #666;
+            }
+            QPushButton:pressed {
+                background-color: #222;
+            }
+        """)
         right_layout.addWidget(self.btn_close, alignment=Qt.AlignRight)
         right_layout.addStretch()
 
@@ -131,33 +189,38 @@ class WinampMiniPlayer(QWidget):
         btn_prev = QPushButton()
         btn_prev.setIcon(QIcon(os.path.join(icon_dir, "prev.png")))
         btn_prev.clicked.connect(self.audio_manager.previous_track)
+        add_3d_effect(btn_prev)
         controls_layout.addWidget(btn_prev)
 
         btn_play = QPushButton()
         btn_play.setIcon(QIcon(os.path.join(icon_dir, "play.png")))
         btn_play.clicked.connect(self.audio_manager.play)
+        add_3d_effect(btn_play)
         controls_layout.addWidget(btn_play)
 
         btn_pause = QPushButton()
         btn_pause.setIcon(QIcon(os.path.join(icon_dir, "pause.png")))
         btn_pause.clicked.connect(self.audio_manager.pause)
+        add_3d_effect(btn_pause)
         controls_layout.addWidget(btn_pause)
 
         btn_stop = QPushButton()
         btn_stop.setIcon(QIcon(os.path.join(icon_dir, "stop.png")))
         btn_stop.clicked.connect(self.audio_manager.stop)
+        add_3d_effect(btn_stop)
         controls_layout.addWidget(btn_stop)
 
         btn_next = QPushButton()
         btn_next.setIcon(QIcon(os.path.join(icon_dir, "next.png")))
         btn_next.clicked.connect(self.audio_manager.next_track)
+        add_3d_effect(btn_next)
         controls_layout.addWidget(btn_next)
 
         volume_layout = QHBoxLayout()
         main_layout.addLayout(volume_layout)
 
         lbl_vol = QLabel("Hangerő:")
-        lbl_vol.setStyleSheet("color: #000000; font-size: 12px;")
+        lbl_vol.setStyleSheet("color: #CCCCCC; font-size: 12px;")
         volume_layout.addWidget(lbl_vol)
 
         self.slider_volume = QSlider(Qt.Horizontal)
@@ -184,15 +247,23 @@ class WinampMiniPlayer(QWidget):
             if album_art:
                 pixmap = QPixmap()
                 pixmap.loadFromData(album_art)
-                pixmap = pixmap.scaled(self.album_art_label.size(), Qt.KeepAspectRatio)
+                pixmap = pixmap.scaled(
+                    self.album_art_label.size(),
+                    Qt.KeepAspectRatio,
+                    Qt.SmoothTransformation
+                )
                 self.album_art_label.setPixmap(pixmap)
             else:
                 default_art = QPixmap(resource_path(os.path.join("resources", "images", "album_art.jpg")))
                 if default_art.isNull():
                     default_art = QPixmap(self.album_art_label.size())
-                    default_art.fill(QColor("#C0C0C0"))
+                    default_art.fill(QColor("#555555"))
                 else:
-                    default_art = default_art.scaled(self.album_art_label.size(), Qt.KeepAspectRatio)
+                    default_art = default_art.scaled(
+                        self.album_art_label.size(),
+                        Qt.KeepAspectRatio,
+                        Qt.SmoothTransformation
+                    )
                 self.album_art_label.setPixmap(default_art)
 
     def load_metadata(self, file_path):
@@ -213,10 +284,16 @@ class WinampMiniPlayer(QWidget):
             return None, None, None
 
     def paintEvent(self, event):
-        painter = QPainter(self)
-        painter.fillRect(self.rect(), QColor("#C0C0C0"))  # Egyszínű szürke háttér
         opt = QStyleOption()
         opt.initFrom(self)
+        painter = QPainter(self)
+        if not self.background.isNull():
+            scaled_bg = self.background.scaled(
+                self.size(),
+                Qt.KeepAspectRatioByExpanding,
+                Qt.SmoothTransformation
+            )
+            painter.drawPixmap(0, 0, scaled_bg)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, painter, self)
 
     def mousePressEvent(self, event):
