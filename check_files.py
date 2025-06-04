@@ -32,7 +32,7 @@ def main():
         "resources/icons/prev.png",
         "resources/images/bgmin.png",
         
-        "config/user_config.json",
+        "resources/user_config.json",
         "audio"  
     ]
 
