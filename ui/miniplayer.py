@@ -195,6 +195,10 @@ class WinampMiniPlayer(QWidget):
                     default_art = default_art.scaled(self.album_art_label.size(), Qt.KeepAspectRatio)
                 self.album_art_label.setPixmap(default_art)
 
+            # update visualization samples for the new track
+            if hasattr(self, "viz_widget"):
+                self.viz_widget.load_audio_samples()
+
     def load_metadata(self, file_path):
         from mutagen.id3 import ID3
         try:
