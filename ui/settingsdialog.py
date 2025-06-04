@@ -100,7 +100,7 @@ class SettingsDialog(QDialog):
             qss_file = "resources/skins/win95_dark_v2.qss"
         elif selected_style == "Klasszikus":
             qss_file = "resources/skins/classic.qss"
-        elif selected_style == "modern":
+        elif selected_style == "Sötét":
             qss_file = "resources/skins/modern.qss"
         else:
             qss_file = ""
