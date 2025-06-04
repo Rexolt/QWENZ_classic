@@ -95,7 +95,7 @@ def main():
         "Prev Icon": ("resources/icons/prev.png", check_image),
         "Background Image": ("resources/images/bgmin.png", check_image),
         
-        "Config": ("config/user_config.json", check_config),
+        "Config": ("resources/user_config.json", check_config),
         "Audio Folder": ("audio", lambda path: check_directory(path, allowed_exts=(".mp3", ".wav", ".flac", ".ogg", ".aac")))
     }
     print("Checking resources...")
